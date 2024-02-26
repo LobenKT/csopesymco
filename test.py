@@ -2,7 +2,7 @@ import unittest
 from main import sjf, get_user_input
 
 class TestSJF(unittest.TestCase):
-    # Simulate the results of https://www.youtube.com/watch?v=pYO-FAg-TpQ
+    # Simulate the results of https://www.youtube.com/watch?v=pYO-FAg-TpQ and Test File Input
     def test_valid_input(self):
         x, y, z, processes = get_user_input('sjf.txt')
         expected_output = [
@@ -17,8 +17,9 @@ class TestSJF(unittest.TestCase):
         self.assertEqual(output, expected_output)
 
     # When Remaining Time of two or more processes are the same, assume the lower numbered process has priority    
+    # From CPU Scheduling Practice
     def test_pid_prio(self):
-        x, y, z, processes = get_user_input('sjf1.txt')
+        processes = [(1, 0, 5), (2, 0, 4), (3, 0, 6), (4, 0, 5)]
         expected_output = [
             "P[2] Start time: 0 End time: 4 | Waiting time: 0",
             "P[1] Start time: 4 End time: 9 | Waiting time: 4",
@@ -30,8 +31,9 @@ class TestSJF(unittest.TestCase):
         self.assertEqual(output, expected_output)
 
     # When Remaining Time of two or more processes are the same, use Arrival Time as priority
+    # From CPU Scheduling Practice
     def test_at_prio(self):
-        x, y, z, processes = get_user_input('sjf2.txt')
+        processes = [(1, 0, 5), (2, 1, 4), (3, 3, 6), (4, 6, 5)]
         expected_output = [
             "P[1] Start time: 0 End time: 5 | Waiting time: 0",
             "P[2] Start time: 5 End time: 9 | Waiting time: 4",
