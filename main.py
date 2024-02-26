@@ -7,6 +7,7 @@ def get_user_input(file=None):
             # Input format: X Y Z (algorithm, number of processes, time quantum)
             if (file == None):
                 x, y, z = map(int, input("Enter X Y Z: ").split())
+                print(f"You entered: X={x} (scheduling algorithm), Y={y} (number of processes), Z={z} (time quantum). Now, please enter details for {y} processes:")
             else:
                 with open(file, 'r') as f:
                     x, y, z = map(int, f.readline().split())
