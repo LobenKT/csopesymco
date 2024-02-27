@@ -73,7 +73,7 @@ def sjf(processes):
     curr_time = 0 # Initialize time counter
     ready = [] # Ready queue
     terminated = [] # Terminated processes
-    gantt = [] # Gantt chart but preemptive
+    gantt = [] # Gantt chart using non-preemptive
     avg = 0 # Average waiting time
     result = [] # Container for the result
     
