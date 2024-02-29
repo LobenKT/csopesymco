@@ -65,9 +65,30 @@ inputs = [
 
 #TODO: Implement the scheduling algorithms below
 def fcfs(processes):
-    """First-Come-First-Serve Scheduling."""
-    # Placeholder for FCFS implementation
-    pass
+    """First-Come-First-Serve Scheduling, conforming to specified input-output format."""
+    processes.sort(key=lambda x: x[1])  # Sort by arrival time
+
+    current_time = 0
+    total_waiting_time = 0
+    process_output = []
+
+    for pid, arrival_time, burst_time in processes:
+        if current_time < arrival_time:
+            current_time = arrival_time
+        start_time = current_time
+        end_time = start_time + burst_time
+        waiting_time = start_time - arrival_time
+        total_waiting_time += waiting_time
+        
+        process_output.append((start_time, pid, end_time, waiting_time))
+        current_time += burst_time
+    
+    # Ensuring the output is sorted by start time, although it should already be in order due to FCFS nature
+    for start_time, pid, end_time, waiting_time in sorted(process_output):
+        print(f"P[{pid}] start time: {start_time} end time: {end_time} | Waiting time: {waiting_time}")
+
+    average_waiting_time = total_waiting_time / len(processes)
+    print(f"Average waiting time: {average_waiting_time:.2f}")
 
 def sjf(processes):
     """Shortest-Job First Scheduling."""
