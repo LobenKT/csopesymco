@@ -92,8 +92,50 @@ def fcfs(processes):
 
 def sjf(processes):
     """Shortest-Job First Scheduling."""
-    # Placeholder for SJF implementation
-    pass
+    curr_time = 0 # Initialize time counter
+    ready = [] # Ready queue
+    terminated = [] # Terminated processes
+    gantt = [] # Gantt chart using non-preemptive
+    avg = 0 # Average waiting time
+    result = [] # Container for the result
+    
+    # Sort processes based on arrival time and then burst time
+    processes.sort(key= lambda x: (x[1], x[2])) 
+
+    # Loop while not all processes have been terminated
+    while (len(terminated) != len(processes)):
+        # Add processes to ready queue if they have arrived
+        for process in processes:
+            if process[1] <= curr_time and process not in ready and process not in terminated:
+                ready.append(process)
+        
+        # Sort the ready queue based on burst time
+        # If burst time is equal, sort by arrival time
+        # If arrival time is equal, sort by pid
+        ready.sort(key=lambda x: (x[2], x[1], x[0]), reverse=True)
+
+        # If ready queue is not empty, execute the next process
+        # Record their start, end, and wait times
+        if (ready):
+            pid, arrival, burst = ready.pop()
+            start_time = curr_time
+            end_time = curr_time + burst
+            wait_time = curr_time - arrival
+            curr_time = end_time
+            terminated.append((pid, arrival, burst))
+            gantt.append((pid, start_time, end_time, wait_time, curr_time))
+
+    # Sort the gantt chart so it can be used for printing      
+    # Sort based on start time  
+    gantt.sort(key = lambda x: (x[1]))
+
+    # Print
+    for i in gantt:
+        result.append(f"P[{i[0]}] Start time: {i[1]} End time: {i[2]} | Waiting time: {i[3]}")
+        avg += i[3]
+    result.append(f"Average waiting time: {avg / len(processes):.2f}")
+    print('\n'.join(result))
+    return result
 
 def srtf(processes):
     """Shortest-Remaining-Time-First Scheduling."""
