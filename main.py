@@ -65,30 +65,9 @@ inputs = [
 
 #TODO: Implement the scheduling algorithms below
 def fcfs(processes):
-    """First-Come-First-Serve Scheduling, conforming to specified input-output format."""
-    processes.sort(key=lambda x: x[1])  # Sort by arrival time
-
-    current_time = 0
-    total_waiting_time = 0
-    process_output = []
-
-    for pid, arrival_time, burst_time in processes:
-        if current_time < arrival_time:
-            current_time = arrival_time
-        start_time = current_time
-        end_time = start_time + burst_time
-        waiting_time = start_time - arrival_time
-        total_waiting_time += waiting_time
-        
-        process_output.append((start_time, pid, end_time, waiting_time))
-        current_time += burst_time
-    
-    # Ensuring the output is sorted by start time, although it should already be in order due to FCFS nature
-    for start_time, pid, end_time, waiting_time in sorted(process_output):
-        print(f"P[{pid}] start time: {start_time} end time: {end_time} | Waiting time: {waiting_time}")
-
-    average_waiting_time = total_waiting_time / len(processes)
-    print(f"Average waiting time: {average_waiting_time:.2f}")
+    """First-Come-First-Serve Scheduling."""
+    # Placeholder for FCFS implementation
+    pass
 
 def sjf(processes):
     """Shortest-Job First Scheduling."""
@@ -101,9 +80,66 @@ def srtf(processes):
     pass
 
 def rr(processes, time_quantum):
-    """Round-Robin Scheduling."""
-    # Placeholder for RR implementation
-    pass
+    """round robin scheduling"""
+    n = len(processes)
+    # sort processes by arrival time then burst time
+    processes = sorted(processes, key=lambda x: (x[1], x[2]))
+
+    # initialize lists of arrivals, remaining times, and waiting times
+    arrival_time = [process[1] for process in processes]
+    remaining_time = [process[2] for process in processes]
+    waiting_time = [0 for _ in range(n)]
+
+    # initialize queue with the first process, assuming no leading waiting time
+    # one process shall be ensured to start at 0ms
+    queue = [processes[0][0]]
+    start_time = 0
+    end_time = 0
+
+    # main scheduling loop
+    while any(remaining_time):
+        # get the next process from the queue
+        id = queue.pop(0)
+
+        # iterate through processes to find the current process
+        for i in range(n):
+            pid = processes[i][0]
+
+            # skip processes until the current one is found
+            if id != pid:
+                continue
+
+            # execute the process for the time quantum or until completion
+            if remaining_time[i] > 0:
+                if remaining_time[i] >= time_quantum:
+                    end_time += time_quantum
+                    remaining_time[i] -= time_quantum
+                else:
+                    end_time += remaining_time[i]
+                    remaining_time[i] = 0
+
+                # update queue with processes that arrived during the execution of the current process
+                for j in range(i+1, n):
+                    x, y, z = processes[j]
+                    if y <= end_time:
+                        queue.append(x)
+
+                # update waiting time and arrival time for the current process
+                waiting_time[i] = start_time - arrival_time[i]
+                arrival_time[i] = end_time
+
+                # print process details
+                print(f"P[{pid}] start time: {start_time} end time: {end_time} | Waiting time: {waiting_time[i]}")
+
+                # update start time for the next process
+                start_time = end_time
+
+                # add the current process back to the queue if it is not completed
+                queue.append(pid)
+
+    # calculate and print the average waiting time
+    avg_waiting_time = sum(waiting_time) / n
+    print(f"Average waiting time: {avg_waiting_time}")
 
 def main():
     # Choose if Manual Input or File Input
@@ -122,8 +158,8 @@ def main():
 
     # x, y, z, processes = simulate_user_input(inputs)  # For testing purposes
 
-    print("Algorithm Config (XYZ): ", x, y, z) # For testing purposes
-    print("The processes are: ", processes) # For testing purposes
+    # print("Algorithm Config (XYZ): ", x, y, z) # For testing purposes
+    # print("The processes are: ", processes) # For testing purposes
     
     # Select and execute the scheduling algorithm based on user input
     if x == 0:
@@ -139,3 +175,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
