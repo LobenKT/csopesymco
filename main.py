@@ -80,17 +80,11 @@ def srtf(processes):
     pass
 
 def rr(processes, time_quantum):
-    """round robin scheduling"""
+    """Round-Robin Scheduling."""
     n = len(processes)
-    # sort processes by arrival time then burst time
-    processes = sorted(processes, key=lambda x: (x[1], x[2]))
 
-    # initialize lists of arrivals, remaining times, and waiting times
-    arrival_time = [process[1] for process in processes]
-    remaining_time = [process[2] for process in processes]
-    waiting_time = [0 for _ in range(n)]
-    result = [] # for testing
-
+    pdict = {p[0]: [p[1], p[2], 0] for p in processes}
+    
     # initialize queue with the first process, assuming no leading waiting time
     # one process shall be ensured to start at 0ms
     queue = [processes[0][0]]
@@ -98,52 +92,45 @@ def rr(processes, time_quantum):
     end_time = 0
 
     # main scheduling loop
-    while any(remaining_time):
+    while queue:
         # get the next process from the queue
         id = queue.pop(0)
+        
+        # create temp list for handling same arrival time of incoming processes
+        temp = []
+        
+        # execute the process for the time quantum or until completion
+        if pdict[id][1] > 0:
+            if pdict[id][1] >= time_quantum:
+                end_time += time_quantum
+                pdict[id][1] -= time_quantum
+            else:
+                end_time += pdict[id][1]
+                pdict[id][1] = 0
 
-        # iterate through processes to find the current process
-        for i in range(n):
-            pid = processes[i][0]
+            # update queue with processes that arrived during the execution of the current process
+            for j in range(n):
+                x, y, z = processes[j]
+                if x not in queue and x != id and y <= end_time:
+                    queue.append(x)
 
-            # skip processes until the current one is found
-            if id != pid:
-                continue
 
-            # execute the process for the time quantum or until completion
-            if remaining_time[i] > 0:
-                if remaining_time[i] >= time_quantum:
-                    end_time += time_quantum
-                    remaining_time[i] -= time_quantum
-                else:
-                    end_time += remaining_time[i]
-                    remaining_time[i] = 0
+            # update waiting time anddict[id][2]al time for the current process
+            pdict[id][2] += start_time - pdict[id][0]
+            pdict[id][0] = end_time
 
-                # update queue with processes that arrived during the execution of the current process
-                for j in range(i+1, n):
-                    x, y, z = processes[j]
-                    if y <= end_time:
-                        queue.append(x)
+            # print process details
+            print(f"P[{id}] start time: {start_time} end time: {end_time} | Waiting time: {pdict[id][2]}")
 
-                # update waiting time and arrival time for the current process
-                waiting_time[i] = start_time - arrival_time[i]
-                arrival_time[i] = end_time
+            # update start time for the next process
+            start_time = end_time
 
-                # print process details
-                print(f"P[{pid}] start time: {start_time} end time: {end_time} | Waiting time: {waiting_time[i]}")
-                result.append(f"P[{pid}] start time: {start_time} end time: {end_time} | Waiting time: {waiting_time[i]}")
-
-                # update start time for the next process
-                start_time = end_time
-
-                # add the current process back to the queue if it is not completed
-                queue.append(pid)
+            # add the current process back to the queue if it is not completed
+            queue.append(id)
 
     # calculate and print the average waiting time
-    avg_waiting_time = sum(waiting_time) / n
+    avg_waiting_time = sum(p[2] for p in pdict.values()) / n
     print(f"Average waiting time: {avg_waiting_time}")
-    result.append(f"Average waiting time: {avg_waiting_time}")
-    return result
 
 def main():
     # Choose if Manual Input or File Input
