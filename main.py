@@ -89,6 +89,7 @@ def rr(processes, time_quantum):
     arrival_time = [process[1] for process in processes]
     remaining_time = [process[2] for process in processes]
     waiting_time = [0 for _ in range(n)]
+    result = [] # for testing
 
     # initialize queue with the first process, assuming no leading waiting time
     # one process shall be ensured to start at 0ms
@@ -130,6 +131,7 @@ def rr(processes, time_quantum):
 
                 # print process details
                 print(f"P[{pid}] start time: {start_time} end time: {end_time} | Waiting time: {waiting_time[i]}")
+                result.append(f"P[{pid}] start time: {start_time} end time: {end_time} | Waiting time: {waiting_time[i]}")
 
                 # update start time for the next process
                 start_time = end_time
@@ -140,6 +142,8 @@ def rr(processes, time_quantum):
     # calculate and print the average waiting time
     avg_waiting_time = sum(waiting_time) / n
     print(f"Average waiting time: {avg_waiting_time}")
+    result.append(f"Average waiting time: {avg_waiting_time}")
+    return result
 
 def main():
     # Choose if Manual Input or File Input
