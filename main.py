@@ -139,8 +139,47 @@ def sjf(processes):
 
 def srtf(processes):
     """Shortest-Remaining-Time-First Scheduling."""
-    # Placeholder for SRTF implementation
-    pass
+    min_heap = []  # Priority queue to store processes based on remaining burst time
+    heapq.heapify(min_heap)  # Convert list to heap
+
+    current_time = 0  # Track the current time
+    completed_processes = []  # Store completed processes
+    total_waiting_time = 0  # Calculate total waiting time
+
+    while processes or min_heap:
+        # Check for new arrivals and add them to the min_heap
+        while processes and processes[0][0] <= current_time:
+            arrival_time, burst_time, process_id = processes.pop(0)
+            heapq.heappush(min_heap, (burst_time, arrival_time, process_id))
+
+        if min_heap:
+            # Select the process with the smallest remaining burst time
+            burst_time, arrival_time, process_id = heapq.heappop(min_heap)
+
+            start_time = max(current_time, arrival_time)  # Start time of the process
+            end_time = start_time + 1  # End time of the process
+
+            # Update waiting time for completed processes
+            total_waiting_time += start_time - arrival_time
+
+            # Execute the process for one time unit
+            burst_time -= 1
+            current_time += 1
+
+            if burst_time > 0:
+                heapq.heappush(min_heap, (burst_time, arrival_time, process_id))  # Put it back to min_heap for future execution
+            else:
+                completed_processes.append((process_id, start_time, end_time))  # Process completed
+                print(f"Process {process_id} completed at time {end_time}")
+        else:
+            current_time += 1  # No process is currently executing, move to the next unit of time
+
+    # Calculate average waiting time
+        average_waiting_time = total_waiting_time / len(completed_processes)
+        print(f"Average waiting time: {average_waiting_time:.2f}")
+
+    return completed_processes, average_waiting_time
+
 
 def rr(processes, time_quantum):
   """round-robin scheduling."""
