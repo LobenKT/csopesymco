@@ -80,7 +80,7 @@ def srtf(processes):
     pass
 
 def rr(processes, time_quantum):
-    """Round-Robin Scheduling."""
+    """round-robin scheduling."""
     n = len(processes)
 
     pdict = {p[0]: [p[1], p[2], 0] for p in processes}
@@ -95,9 +95,6 @@ def rr(processes, time_quantum):
     while queue:
         # get the next process from the queue
         id = queue.pop(0)
-        
-        # create temp list for handling same arrival time of incoming processes
-        temp = []
         
         # execute the process for the time quantum or until completion
         if pdict[id][1] > 0:
@@ -166,6 +163,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-
+    
 
 
