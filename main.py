@@ -144,12 +144,12 @@ def srtf(processes):
     priority_queue = []  # Store processes based on remaining burst time
     heapq.heapify(priority_queue)  # List to heap
 
+    # Extract algorithm config
+    _, y, _ = processes.pop(0)
+    
     curr_time = 0  
     finished_processes = []  # Store completed processes
     total_waiting_time = 0  # Calc total waiting time
-
-    # Extract algorithm config
-    _, y, _ = processes.pop(0)
 
     while processes or priority_queue:
         # Check for new arrivals and add them to priority_queue
