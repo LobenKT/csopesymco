@@ -142,43 +142,40 @@ def sjf(processes):
 def srtf(processes):
     """Shortest-Remaining-Time-First Scheduling."""
     priority_queue = []  # Store processes based on remaining burst time
-    heapq.heapify(priority_queue)  # List to heap
+    heapq.heapify(priority_queue)  # Convert list to heap
 
-    # Extract algorithm config
-    _, y, _ = processes.pop(0)
-    
-    curr_time = 0  
+    current_time = 0  
     finished_processes = []  # Store completed processes
-    total_waiting_time = 0  # Calc total waiting time
+    total_waiting_time = 0  # Calculate total waiting time
 
     while processes or priority_queue:
         # Check for new arrivals and add them to priority_queue
-        while processes and processes[0][0] <= curr_time:
+        while processes and processes[0][1] <= current_time:
             arrival_time, burst_time, process_id = processes.pop(0)
             heapq.heappush(priority_queue, (burst_time, arrival_time, process_id))
 
         if priority_queue:
-            # Select  process with the shortest remaining burst time
+            # Select process with the shortest remaining burst time
             burst_time, arrival_time, process_id = heapq.heappop(priority_queue)
 
-            start_time = max(curr_time, arrival_time)  # Start time of the process
+            start_time = max(current_time, arrival_time)  # Start time of the process
             end_time = start_time + 1  # End time of the process
 
-            # Update waiting time for finished processes
+            # Update waiting time for completed processes
             total_waiting_time += start_time - arrival_time
 
             # Execute the process for one time unit
             burst_time -= 1
-            curr_time += 1
+            current_time += 1
 
             if burst_time > 0:
-                heapq.heappush(priority_queue, (burst_time, arrival_time, process_id))  # Return to priority_queue for future execution
+                heapq.heappush(priority_queue, (burst_time, arrival_time, process_id))  # Put it back to priority_queue for future execution
             else:
-                finished_processes.append((process_id, start_time, end_time))  # Process done
+                finished_processes.append((process_id, start_time, end_time))  # Process completed
                 print(f"P[{process_id}] start time: {start_time} end time: {end_time} | Waiting time: {start_time - arrival_time}")
 
         else:
-            curr_time += 1  # If no process is currently executing, go to the next unit of time
+            current_time += 1  # If no process is currently executing, move to the next unit of time
 
     # Calculate average waiting time
     if finished_processes:
