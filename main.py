@@ -143,9 +143,53 @@ def srtf(processes):
     pass
 
 def rr(processes, time_quantum):
-    """Round-Robin Scheduling."""
-    # Placeholder for RR implementation
-    pass
+  """round-robin scheduling."""
+  n = len(processes)
+
+  pdict = {p[0]: [p[1], p[2], 0] for p in processes}
+
+  # initialize queue with the first process, assuming no leading waiting time
+  # one process shall be ensured to start at 0ms
+  queue = [processes[0][0]]
+  start_time = 0
+  end_time = 0
+
+  # main scheduling loop
+  while queue:
+      # get the next process from the queue
+      id = queue.pop(0)
+
+      # execute the process for the time quantum or until completion
+      if pdict[id][1] > 0:
+          if pdict[id][1] >= time_quantum:
+              end_time += time_quantum
+              pdict[id][1] -= time_quantum
+          else:
+              end_time += pdict[id][1]
+              pdict[id][1] = 0
+
+          # update queue with processes that arrived during the execution of the current process
+          for j in range(n):
+              x, y, z = processes[j]
+              if x not in queue and x != id and y <= end_time:
+                  queue.append(x)
+
+          # update waiting time anddict[id][2]al time for the current process
+          pdict[id][2] += start_time - pdict[id][0]
+          pdict[id][0] = end_time
+
+          # print process details
+          print(f"P[{id}] start time: {start_time} end time: {end_time} | Waiting time: {pdict[id][2]}")
+
+          # update start time for the next process
+          start_time = end_time
+
+          # add the current process back to the queue if it is not completed
+          queue.append(id)
+
+  # calculate and print the average waiting time
+  avg_waiting_time = sum(p[2] for p in pdict.values()) / n
+  print(f"Average waiting time: {avg_waiting_time}")
 
 def main():
     # Choose if Manual Input or File Input
