@@ -1,2 +1,5 @@
-# csopesymco
-CSOPESY Machine Project
+# CSOPESY MACHINE PROJECT GROUP 13 
+AMBRAY, ARDALES, BERNARDO, TIPAN
+CPU SCHEDULING
+
+Run main.py only

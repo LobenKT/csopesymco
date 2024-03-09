@@ -1,3 +1,5 @@
+import heapq
+
 def get_user_input(file=None):
     """
     This function gets and validates the user input according to the specifications.
@@ -7,6 +9,7 @@ def get_user_input(file=None):
             # Input format: X Y Z (algorithm, number of processes, time quantum)
             if (file == None):
                 x, y, z = map(int, input("Enter X Y Z: ").split())
+                print(f"You entered: X={x} (scheduling algorithm), Y={y} (number of processes), Z={z} (time quantum). Now, please enter details for {y} processes:")
             else:
                 with open(file, 'r') as f:
                     x, y, z = map(int, f.readline().split())
@@ -64,9 +67,30 @@ inputs = [
 
 #TODO: Implement the scheduling algorithms below
 def fcfs(processes):
-    """First-Come-First-Serve Scheduling."""
-    # Placeholder for FCFS implementation
-    pass
+    """First-Come-First-Serve Scheduling, conforming to specified input-output format."""
+    processes.sort(key=lambda x: x[1])  # Sort by arrival time
+
+    current_time = 0
+    total_waiting_time = 0
+    process_output = []
+
+    for pid, arrival_time, burst_time in processes:
+        if current_time < arrival_time:
+            current_time = arrival_time
+        start_time = current_time
+        end_time = start_time + burst_time
+        waiting_time = start_time - arrival_time
+        total_waiting_time += waiting_time
+        
+        process_output.append((start_time, pid, end_time, waiting_time))
+        current_time += burst_time
+    
+    # Ensuring the output is sorted by start time, although it should already be in order due to FCFS nature
+    for start_time, pid, end_time, waiting_time in sorted(process_output):
+        print(f"P[{pid}] start time: {start_time} end time: {end_time} | Waiting time: {waiting_time}")
+
+    average_waiting_time = total_waiting_time / len(processes)
+    print(f"Average waiting time: {average_waiting_time:.2f}")
 
 def sjf(processes):
     """Shortest-Job First Scheduling."""
@@ -117,13 +141,100 @@ def sjf(processes):
 
 def srtf(processes):
     """Shortest-Remaining-Time-First Scheduling."""
-    # Placeholder for SRTF implementation
-    pass
+    priority_queue = []  # Store processes based on remaining burst time
+    heapq.heapify(priority_queue)  # Convert list to heap
+
+    current_time = 0  
+    finished_processes = []  # Store completed processes
+    total_waiting_time = 0  # Calculate total waiting time
+
+    while processes or priority_queue:
+        # Check for new arrivals and add them to priority_queue
+        while processes and processes[0][1] <= current_time:
+            arrival_time, burst_time, process_id = processes.pop(0)
+            heapq.heappush(priority_queue, (burst_time, arrival_time, process_id))
+
+        if priority_queue:
+            # Select process with the shortest remaining burst time
+            burst_time, arrival_time, process_id = heapq.heappop(priority_queue)
+
+            start_time = max(current_time, arrival_time)  # Start time of the process
+            end_time = start_time + 1  # End time of the process
+
+            # Update waiting time for completed processes
+            total_waiting_time += start_time - arrival_time
+
+            # Execute the process for one time unit
+            burst_time -= 1
+            current_time += 1
+
+            if burst_time > 0:
+                heapq.heappush(priority_queue, (burst_time, arrival_time, process_id))  # Put it back to priority_queue for future execution
+            else:
+                finished_processes.append((process_id, start_time, end_time))  # Process completed
+                print(f"P[{process_id}] start time: {start_time} end time: {end_time} | Waiting time: {start_time - arrival_time}")
+
+        else:
+            current_time += 1  # If no process is currently executing, move to the next unit of time
+
+    # Calculate average waiting time
+    if finished_processes:
+        average_waiting_time = total_waiting_time / len(finished_processes)
+        print(f"Average waiting time: {average_waiting_time:.2f}")
+    else:
+        print("No processes completed.")
+
+    return finished_processes, average_waiting_time
+
 
 def rr(processes, time_quantum):
-    """Round-Robin Scheduling."""
-    # Placeholder for RR implementation
-    pass
+  """round-robin scheduling."""
+  n = len(processes)
+
+  pdict = {p[0]: [p[1], p[2], 0] for p in processes}
+
+  # initialize queue with the first process, assuming no leading waiting time
+  # one process shall be ensured to start at 0ms
+  queue = [processes[0][0]]
+  start_time = 0
+  end_time = 0
+
+  # main scheduling loop
+  while queue:
+      # get the next process from the queue
+      id = queue.pop(0)
+
+      # execute the process for the time quantum or until completion
+      if pdict[id][1] > 0:
+          if pdict[id][1] >= time_quantum:
+              end_time += time_quantum
+              pdict[id][1] -= time_quantum
+          else:
+              end_time += pdict[id][1]
+              pdict[id][1] = 0
+
+          # update queue with processes that arrived during the execution of the current process
+          for j in range(n):
+              x, y, z = processes[j]
+              if x not in queue and x != id and y <= end_time:
+                  queue.append(x)
+
+          # update waiting time anddict[id][2]al time for the current process
+          pdict[id][2] += start_time - pdict[id][0]
+          pdict[id][0] = end_time
+
+          # print process details
+          print(f"P[{id}] start time: {start_time} end time: {end_time} | Waiting time: {pdict[id][2]}")
+
+          # update start time for the next process
+          start_time = end_time
+
+          # add the current process back to the queue if it is not completed
+          queue.append(id)
+
+  # calculate and print the average waiting time
+  avg_waiting_time = sum(p[2] for p in pdict.values()) / n
+  print(f"Average waiting time: {avg_waiting_time}")
 
 def main():
     # Choose if Manual Input or File Input
